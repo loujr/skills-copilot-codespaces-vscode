@@ -1,64 +1,47 @@
-// Create Web server
+// Create web server 
 
-const express = require('express');
-const router = express.Router();
+var express = require('express');
+var router = express.Router();
+var Comments = require('../models/comments');
 
-// Import comment model
-const Comment = require('../models/comment');
-
-// Import image model
-const Image = require('../models/image');
-
-// Import user model
-const User = require('../models/user');
-
-// Import passport
-const passport = require('passport');
-
-// Import authentication
-const authentication = require('../authentication');
-
-// Import multer
-const multer = require('multer');
-
-// Import cloudinary
-const cloudinary = require('cloudinary');
-
-// Import cloudinary storage
-const storage = require('../cloudinaryStorage');
-
-// Configure multer
-const upload = multer({ storage: storage });
-
-// Configure cloudinary
-cloudinary.config({
-    cloud_name: 'dofk2w5xg',
-    api_key: '725978634558481',
-    api_secret: 'jwUvKXHk2Bx8N7Xj3n4cUJnWfJk'
+// GET /comments
+router.get('/', function(req, res, next) {
+  Comments.find(function(err, comments) {
+    if (err) return next(err);
+    res.json(comments);
+  });
 });
 
-// GET request to get all comments
-// http://localhost:5000/comments
-router.get('/', (req, res, next) => {
-    Comment.find({})
-        .then((comments) => {
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
-            res.json(comments);
-        }, (err) => next(err))
-        .catch((err) => next(err));
+// POST /comments
+router.post('/', function(req, res, next) {
+  Comments.create(req.body, function(err, post) {
+    if (err) return next(err);
+    res.json(post);
+  });
 });
 
-// POST request to add a comment
-// http://localhost:5000/comments
-router.post('/', authentication.verifyUser, (req, res, next) => {
-    // Get the image id from the request body
-    const imageId = req.body.imageId;
+// GET /comments/:id
+router.get('/:id', function(req, res, next) {
+  Comments.findById(req.params.id, function(err, post) {
+    if (err) return next(err);
+    res.json(post);
+  });
+});
 
-    // Get the comment from the request body
-    const comment = req.body.comment;
+// PUT /comments/:id
+router.put('/:id', function(req, res, next) {
+  Comments.findByIdAndUpdate(req.params.id, req.body, function(err, post) {
+    if (err) return next(err);
+    res.json(post);
+  });
+});
 
-    // Create a new comment object
-    const newComment = {
-        imageId: imageId,
-        comment: comment,
+// DELETE /comments/:id
+router.delete('/:id', function(req, res, next) {
+  Comments.findByIdAndRemove(req.params.id, req.body, function(err, post) {
+    if (err) return next(err);
+    res.json(post);
+  });
+});
+
+module.exports = router;
